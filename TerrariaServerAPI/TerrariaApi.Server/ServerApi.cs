@@ -17,6 +17,7 @@ namespace TerrariaApi.Server
 	public static class ServerApi
 	{
 		public const string PluginsPath = "ServerPlugins";
+		public static string AdditionalPluginsPath { get; private set; }
 
 		public static readonly Version ApiVersion = new Version(2, 1, 0, 0);
 		private static Main game;
@@ -263,6 +264,9 @@ namespace TerrariaApi.Server
 					case "-crashdir":
 						CrashReporter.crashReportPath = arg.Value;
 						break;
+					case "-additionalplugins":
+						AdditionalPluginsPath = arg.Value;
+						break;
 				}
 			}
 		}
@@ -277,6 +281,9 @@ namespace TerrariaApi.Server
 
 			List<FileInfo> fileInfos = new DirectoryInfo(ServerPluginsDirectoryPath).GetFiles("*.dll").ToList();
 			fileInfos.AddRange(new DirectoryInfo(ServerPluginsDirectoryPath).GetFiles("*.dll-plugin"));
+			if (AdditionalPluginsPath != null)
+				fileInfos.AddRange(new DirectoryInfo(Path.Combine(ServerPluginsDirectoryPath,
+					AdditionalPluginsPath)).GetFiles("*.dll"));
 
 			Dictionary<TerrariaPlugin, Stopwatch> pluginInitWatches = new Dictionary<TerrariaPlugin, Stopwatch>();
 			foreach (FileInfo fileInfo in fileInfos)
